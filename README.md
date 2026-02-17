@@ -380,3 +380,289 @@ Install required collection:
 ansible-galaxy collection install amazon.aws
 
 
+# ** Jenkins README**
+
+Jenkins CI Pipeline
+
+This directory contains Jenkins pipeline configuration used for Continuous Integration (CI) in the Cloud DevOps Project.
+
+The pipeline automates:
+ • Building Docker image
+ • Scanning Docker image
+ • Pushing image to Docker registry
+ • Removing local image
+ • Updating Kubernetes manifests
+ • Pushing manifests to Git repository
+
+It also uses Jenkins Shared Library for reusable pipeline logic.
+
+
+⸻
+
+⚙️ Prerequisites
+
+Before running Jenkins pipeline:
+ • Jenkins installed on EC2
+ • Docker installed on Jenkins server
+ • Git installed
+ • Access to Docker Hub (or private registry)
+ • Kubernetes manifests repository configured
+ • Credentials added in Jenkins
+
+⸻
+
+🔐 Jenkins Credentials
+
+Add the following credentials inside Jenkins:
+
+Docker Hub Credentials
+
+Type: Username / Password
+
+ID example:
+
+docker-creds
+
+Git Credentials
+
+For pushing manifests updates.
+
+⸻
+
+🚀 Pipeline Stages
+
+The pipeline contains the following stages:
+
+1️⃣ Build Image
+
+Build Docker image from Dockerfile.
+
+docker build -t image-name .
+
+2️⃣ Scan Image
+
+Scan container image for vulnerabilities using tools like:
+ • Trivy
+ • Docker Scout
+
+3️⃣ Push Image
+
+Push image to Docker registry.
+
+docker push repo/image:tag
+
+4️⃣ Delete Local Image
+
+Cleanup Jenkins disk space.
+
+docker rmi image
+
+5️⃣ Update Kubernetes Manifests
+
+Update deployment image tag automatically.
+
+6️⃣ Push Manifests
+
+Push updated manifests to Git repository.
+
+⸻
+
+🧱 Shared Library
+
+Shared library functions are located in:
+
+vars/
+
+Each Groovy file represents reusable pipeline logic.
+
+Example usage in Jenkinsfile:
+
+@Library('my-shared-lib') _
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                buildImage()
+            }
+        }
+    }
+}
+
+
+⸻
+
+▶️ Running Pipeline
+ 1. Open Jenkins dashboard
+ 2. Create new Pipeline job
+ 3. Connect Git repository
+ 4. Select Jenkinsfile path
+ 5. Run Build
+
+⸻
+
+🌐 Jenkins Access
+
+Default Jenkins URL:
+
+http://SERVER_IP:8080
+
+
+⸻
+
+🛠 Troubleshooting
+
+Docker permission issue
+
+Add Jenkins user to docker group:
+
+sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+
+Pipeline cannot push to Git
+
+Check credentials and access token.
+
+⸻
+
+ArgoCD Continuous Deployment
+
+This directory contains ArgoCD configuration used for Continuous Deployment (CD) in the Cloud DevOps Project.
+
+ArgoCD implements GitOps workflow to automatically deploy the application into the Kubernetes cluster.
+
+⸻
+
+📁 Directory Structure
+
+argocd/
+│── application.yaml
+
+
+⸻
+
+⚙️ Prerequisites
+
+Before configuring ArgoCD:
+ • Kubernetes cluster running (kubeadm)
+ • kubectl configured
+ • ArgoCD installed in cluster
+ • Git repository containing Kubernetes manifests
+
+⸻
+
+🚀 Install ArgoCD
+
+Create namespace:
+
+kubectl create namespace argocd
+
+Install ArgoCD:
+
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+Wait for pods:
+
+kubectl get pods -n argocd
+
+
+⸻
+
+🔐 Access ArgoCD UI
+
+Port forward:
+
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+Access:
+
+https://localhost:8080
+
+Get admin password:
+
+kubectl get secret argocd-initial-admin-secret -n argocd -o yaml
+
+Decode:
+
+echo PASSWORD | base64 -d
+
+
+⸻
+
+📦 Application Deployment
+
+Application file:
+
+application.yaml
+
+Example:
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devops-app
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+repoURL: https://github.com/your-repo/CloudDevOpsProject.git
+    targetRevision: HEAD
+    path: kubernetes
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ivolve
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+Apply:
+
+kubectl apply -f application.yaml
+
+
+⸻
+
+🔄 GitOps Workflow
+ 1. Developer pushes code
+ 2. Jenkins builds image and updates manifests
+ 3. Git repository updated
+ 4. ArgoCD detects changes
+ 5. Application automatically deployed
+
+⸻
+
+🔎 Verify Deployment
+
+Check ArgoCD:
+
+kubectl get applications -n argocd
+
+Check pods:
+
+kubectl get pods -n ivolve
+
+
+⸻
+
+🛠 Troubleshooting
+
+Application not syncing
+
+Check:
+
+kubectl describe application devops-app -n argocd
+
+Repo access issue
+
+Verify repository URL and credentials.
+
+⸻
+
+# 👩‍💻 Author
+ -Rawan Osama
