@@ -136,7 +136,7 @@ kubectl get pods -n ivolve
 ```
 ---
 
-# **CloudDevOpsProject – Terraform Module**
+# CloudDevOpsProject – Terraform Module
 
 ---
 
@@ -151,7 +151,7 @@ Before running Terraform, make sure you have:
 
 
 
-## **AWS S3 Backend Configuration**
+## AWS S3 Backend Configuration
 
 Terraform uses **S3** to store remote state. Make sure you create the bucket before initializing Terraform:
 
@@ -380,7 +380,7 @@ Install required collection:
 ansible-galaxy collection install amazon.aws
 
 
-# ** Jenkins README**
+# Jenkins
 
 Jenkins CI Pipeline
 
