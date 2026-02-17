@@ -1,0 +1,9 @@
+- name: Configure Jenkins Master
+  hosts: Master-Node
+  become: yes
+
+  roles:
+    - docker
+    - git
+    - java
+    - jenkins
